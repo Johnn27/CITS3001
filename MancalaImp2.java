@@ -1,21 +1,35 @@
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Random;
 
-public class MancalaImp implements MancalaAgent{
+public class MancalaImp2 implements MancalaAgent{
         public static void main(String args[]){
     }
-        	final static int highestDepth = 8;
         	static int[] mainboard;
 
     public int move(int[] board) {
     	mainboard = board;
-        int minmaxvalue = minMax(Integer.MIN_VALUE,Integer.MAX_VALUE,highestDepth,true);
-        return minmaxvalue;
+        ArrayList<Integer> moves = generateLegalMoves(true);   //If it is the minimizer (opponent) then flip board as well
+        Iterator<Integer> movesIterator = moves.iterator();
+        int bestMove = -1;
+        int bestvalue = -1;
+        int minmaxvalue = -1;
+           while (movesIterator.hasNext()){
+               int currentMove = movesIterator.next();
+               Random rand = new Random();
+               minmaxvalue = rand.nextInt(50) + 1;
+               if(minmaxvalue > bestvalue){
+            	   bestvalue = minmaxvalue;
+            	   bestMove = currentMove;
+               }
+            }
+          return bestMove;
     }
 
 
-    public String name(){return "Bob the bad bot";}
+    public String name(){return "Rob the random bot";}
 
 
     public void reset() {
@@ -32,9 +46,9 @@ public class MancalaImp implements MancalaAgent{
          	for(int count = 1; count <= currentSeeds;count++){
          		if( i + count < 6  && count == currentSeeds &&mainboard[i+count] == 0 && mainboard[i+count+7] != 0) //If last seeds end up on empty slot, loot opponents store
          		{
-         			evalSeeds = mainboard[6] + mainboard[i+count+7] + 1;
+         			evalSeeds = mainboard[i+count+7] + 1;
          		}
-         		else{evalSeeds = mainboard[6];}
+         		else{evalSeeds = mainboard[6] + (int) (currentSeeds/2);}
                 if(evalSeeds>biggestStore) biggestStore = evalSeeds;
          		}	
         	}
@@ -104,57 +118,50 @@ public class MancalaImp implements MancalaAgent{
      ArrayList<Integer> moves = generateLegalMoves(isMaximizer);   //If it is the minimizer (opponent) then flip board as well
      Iterator<Integer> movesIterator = moves.iterator();
      int returnMove;
-     int bestMoveValue = -1;
-     int bestMove = 0;
+     int bestMove = -1;
       if (isMaximizer) {   
         while (movesIterator.hasNext()) {
             int currentMove = movesIterator.next();
             int seeds = applyMove(currentMove);
             returnMove = minMax(alpha, beta, maxDepth - 1, !isMaximizer); //The opponent is a minimizer (set as false)
             undoLastMove(currentMove, seeds);
-            if ((bestMoveValue == -1) || (bestMoveValue < returnMove)) {
-                bestMoveValue = returnMove;
-                bestMove = currentMove;
+            if ((bestMove == -1) || (bestMove < returnMove)) {
+                bestMove = returnMove;
             }
             if (returnMove > alpha) {
                 alpha = returnMove;
-                bestMoveValue = returnMove;
-                bestMove = currentMove;
+                bestMove = returnMove;
             }
             if (beta <= alpha) {
-                bestMoveValue = (int) beta;
-                return bestMoveValue; // pruning
+                bestMove = (int) beta;
+                return bestMove; // pruning
             }
         }
-        if(maxDepth == highestDepth){
-        	return bestMove;
-        }
-        return bestMoveValue;
+        return bestMove;
     } else {
         while (movesIterator.hasNext()) {
             int currentMove = movesIterator.next();
+                                                if(currentMove > 5){
+            @SuppressWarnings("unused")
+			int i = 3;
+            }
             int seeds = applyMove(currentMove);
             returnMove = minMax(alpha, beta, maxDepth - 1, !isMaximizer); //The opponent is a minimizer (set as false)
             undoLastMove(currentMove, seeds);
-            if ((bestMoveValue == -1) || (bestMoveValue > returnMove)) {
-                bestMoveValue = returnMove;
-                bestMove = currentMove;
+            if ((bestMove == -1) || (bestMove > returnMove)) {
+                bestMove = returnMove;
             }
             if (returnMove < alpha) {
                 alpha = returnMove;
-                bestMoveValue = returnMove;
-                bestMove = currentMove;
+                bestMove = returnMove;
             }
             if (beta <= alpha) {
-                bestMoveValue = (int) alpha;
-                return bestMoveValue; // pruning
+                bestMove = (int) alpha;
+                return bestMove; // pruning
             }
         }
         invertBoard();  //Reflect back
-        if(maxDepth == highestDepth){
-        	return bestMove;
-        }
-        return bestMoveValue;
+        return bestMove;
     }    
 
  }
